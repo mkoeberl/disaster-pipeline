@@ -1,15 +1,19 @@
 import json
 import plotly
 import pandas as pd
+import numpy as np
+import pickle
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
-from sklearn.externals import joblib
+from plotly.graph_objects import Bar, Histogram
 from sqlalchemy import create_engine
+from pathlib import Path
+
+import joblib
 
 
 app = Flask(__name__)
@@ -26,22 +30,41 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('messages_categories', engine)
+
+import os
+path = Path(os.getcwd()).parent/'models'/'classifier.pkl'
+print(str(path))
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load(str(path))
+#with open(str(path),'rb') as file:
+#    model = pickle.load(file)
+
+
 
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
-    
+
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    category_names = list(df.columns[4:])
+    values = np.sort(np.unique(df[category_names                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ].to_numpy().reshape((-1))))
+    category_occurrence = {}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+    for value in values:
+        category_occurrence[value] = df[category_names].applymap(lambda x: 1 if x==value else 0).sum()
+
+    lengths = df['message'].apply(lambda x: len(x))
+
+
+
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -63,6 +86,52 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    name='0',
+                    x=category_names,
+                    y=category_occurrence[0]
+                ),
+                Bar(
+                    name='1',
+                    x=category_names,
+                    y=category_occurrence[1]
+                ),
+                Bar(
+                    name='2',
+                    x=category_names,
+                    y=category_occurrence[2]
+                )
+            ],
+            'layout':{
+                'title': 'Distribution per category',
+                'yaxis': {
+                    'title': 'Count'
+                },
+                'xaxis': {
+                    'title': 'Category'
+                },
+                'barmode': 'group'
+            }
+        },
+        {
+            'data' : [
+                Histogram(
+                    x=lengths
+                )
+            ],
+            'layout':{
+                'title': 'Histogram of message length in characters',
+                'xaxis': {
+                    'title': 'Message length'
+                },
+                'yaxis': {
+                    'title': 'Count'
+                }
+            }
+
         }
     ]
     

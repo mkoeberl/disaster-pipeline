@@ -1,6 +1,19 @@
 # Disaster Response Pipeline Project
 
-### Instructions:
+### Contents of repository
+- *app*: Flask web app with a few graphs about the data and message categorization functionality:
+  - *templates*
+    - *master.html*: index page
+    - *go.html*: html needed when user inputs message to be categorized
+  -  *run.py*: script to run web app
+- *data*: contains sample data and etl pipeline script
+  - *disaster_messages.csv*: sample csv file of messages
+  - *disaster_categories.csv*: sample csv file of categories
+  - *process_data.py*: etl pipeline script to read in two csv files and generate sqlite database
+- *models*: machine learning pipeline
+  - *train_classifier.py*: script to read in sqlite database and generate classification model
+
+### Instructions
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database

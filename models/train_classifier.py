@@ -17,6 +17,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.feature_extraction.text import TfidfTransformer, CountVectorizer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report
+from sklearn.tree import DecisionTreeClassifier
 
 
 def load_data(database_filepath):
@@ -70,9 +71,10 @@ def build_model():
     stopwords_all = list(set(stopwords_custom + stopwords_sklearn))
     parameters = {'tfidf__norm': ['l1', 'l2', None],
                   'count__tokenizer': [tokenize, None],
-                 'count__stop_words': [None, stopwords_all],
-                 'clf__estimator__n_estimators': [10, 100],
-                 'clf__estimator__max_depth': [5, None]}
+                  'count__stop_words': [None, stopwords_all],
+                  # 'clf__estimator__n_estimators': [10, 100],
+                  'clf__estimator__max_depth': [5, None]
+                  }
     cv = GridSearchCV(pipeline, parameters, verbose=10, n_jobs=-1)
     return cv
 
@@ -116,7 +118,7 @@ def main():
         model = build_model()
 
         print('Training model...')
-        model = model.fit( X_train, Y_train)
+        model = model.fit(X_train, Y_train)
 
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
